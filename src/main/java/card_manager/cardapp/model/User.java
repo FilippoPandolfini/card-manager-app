@@ -1,6 +1,8 @@
 package card_manager.cardapp.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
@@ -20,6 +22,8 @@ public class User {
     private String surname;
 
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "Email obbligatoria")
+    @Email(message = "Email non valida")
     private String email;
 
     public Long getId(){

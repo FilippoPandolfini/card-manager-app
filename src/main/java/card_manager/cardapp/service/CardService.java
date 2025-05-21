@@ -26,6 +26,9 @@ public class CardService {
     private PossessionRepository possessionRepository;
 
     public Card createCard(Card card){
+        if (cardRepository.existsByCode(card.getCode())) {
+            throw new IllegalArgumentException("Una carta con codice '" + card.getCode() + "' esiste già.");
+        }
         return cardRepository.save(card);
     }
 
