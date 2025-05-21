@@ -20,6 +20,12 @@ public class Possession {
     @Column(nullable = false)
     private int copies;
 
+    public Possession() {
+        this.user = user;
+        this.card = card;
+        this.copies = copies;
+    }
+
     public Long getId(){
         return id;
     }
