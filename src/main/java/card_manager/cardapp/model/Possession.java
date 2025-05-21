@@ -52,4 +52,10 @@ public class Possession {
         this.copies = copies;
     }
 
+    public Possession(User user, Card card, int copies) {
+        this.user = user;
+        this.card = card;
+        this.copies = copies;
+    }
+
 }
