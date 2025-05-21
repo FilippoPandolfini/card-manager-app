@@ -1,0 +1,62 @@
+package card_manager.cardapp.controller;
+
+import card_manager.cardapp.model.Card;
+import card_manager.cardapp.service.CardService;
+import card_manager.cardapp.service.PossessionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/cards")
+public class CardController {
+
+    @Autowired
+    private CardService cardService;
+
+    @Autowired
+    private PossessionService possessionService;
+
+    @PostMapping
+    public ResponseEntity<Card> createCard(@RequestBody Card card){
+        Card created = cardService.createCard(card);
+        return ResponseEntity.ok(created);
+    }
+
+    @GetMapping
+    public List<Card> getAllCards() {
+        return cardService.getAllCards();
+    }
+
+    @GetMapping("/{code}")
+    public ResponseEntity<Card> getCardByCode(@PathVariable String code){
+        return cardService.getCardByCode(code)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{code}/owners")
+    public ResponseEntity<String> assignCardToUsers(
+            @PathVariable String code,
+            @RequestBody List<String> userEmails){
+
+        try {
+            cardService.assignCardToUser(code, userEmails);
+            return ResponseEntity.ok("Carta assegnata al giocatore");
+        } catch (RuntimeException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{code}")
+    public ResponseEntity<String> deleteCard(@PathVariable String code){
+        try {
+            possessionService.deleteCardCascade(code);
+            return ResponseEntity.ok("Carta eliminata con successo");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+}
