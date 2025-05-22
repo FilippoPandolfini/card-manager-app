@@ -12,6 +12,9 @@ public class UserDTO {
     @NotBlank(message = "Nome obbligatorio")
     private String name;
 
+    @NotBlank(message = "Cognome obbligatorio")
+    private String surname;
+
     public String getEmail() {
         return email;
     }
@@ -26,5 +29,13 @@ public class UserDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 }

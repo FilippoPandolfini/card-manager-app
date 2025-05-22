@@ -1,6 +1,6 @@
 package card_manager.cardapp.service;
 
-import card_manager.cardapp.model.Card;
+import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.model.Possession;
 import card_manager.cardapp.model.User;
 import card_manager.cardapp.repository.CardRepository;
@@ -26,7 +26,7 @@ public class PossessionService {
     public void buyCard(String email, String code){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
-        Card card = cardRepository.findByCode(code)
+        Cards card = cardRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Carta non trovata"));
 
         Possession possession = possessionRepository.findByUserAndCard(user, card)
@@ -40,13 +40,15 @@ public class PossessionService {
     public void sellCard(String email, String code) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
-        Card card = cardRepository.findByCode(code)
+        Cards card = cardRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Carta non trovata"));
 
         Possession possession = possessionRepository.findByUserAndCard(user, card)
                 .orElseThrow(() -> new RuntimeException("L'utente " + user + " non possiede questa carta"));
 
-        if (possession.getCopies() > 1) {
+        if (possession.getCopies() <= 0) {
+            throw new RuntimeException("Nessuna copia disponibile");
+        } else if (possession.getCopies() > 1) {
             possession.setCopies(possession.getCopies() - 1);
             possessionRepository.save(possession);
         } else if (possession.getCopies() == 1) {
@@ -56,7 +58,7 @@ public class PossessionService {
 
     @Transactional
     public void deleteCardCascade(String code){
-        Card card = cardRepository.findByCode(code)
+        Cards card = cardRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Carta non trovata"));
 
         possessionRepository.deleteByCard(card);

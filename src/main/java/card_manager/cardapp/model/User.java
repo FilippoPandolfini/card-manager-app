@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -22,9 +24,14 @@ public class User {
     private String surname;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Email obbligatoria")
-    @Email(message = "Email non valida")
     private String email;
+
+    @PrePersist
+    public void prePersist(){
+        if (this.uid == null || this.uid.isEmpty()) {
+            this.uid = UUID.randomUUID().toString();
+        }
+    }
 
     public Long getId(){
         return id;

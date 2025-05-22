@@ -1,8 +1,10 @@
 package card_manager.cardapp.controller;
 
-import card_manager.cardapp.model.Card;
+import card_manager.cardapp.dto.CardDTO;
+import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.service.CardService;
 import card_manager.cardapp.service.PossessionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,18 +22,22 @@ public class CardController {
     private PossessionService possessionService;
 
     @PostMapping
-    public ResponseEntity<Card> createCard(@RequestBody Card card){
-        Card created = cardService.createCard(card);
+    public ResponseEntity<Cards> createCard(@Valid @RequestBody CardDTO cardDTO){
+        Cards card = new Cards();
+        card.setName(cardDTO.getName());
+        card.setCode(cardDTO.getCode());
+        card.setColor(cardDTO.getColor());
+        Cards created = cardService.createCard(card);
         return ResponseEntity.ok(created);
     }
 
     @GetMapping
-    public List<Card> getAllCards() {
+    public List<Cards> getAllCards() {
         return cardService.getAllCards();
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<Card> getCardByCode(@PathVariable String code){
+    public ResponseEntity<Cards> getCardByCode(@PathVariable String code){
         return cardService.getCardByCode(code)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

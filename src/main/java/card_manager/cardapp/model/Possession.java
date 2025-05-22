@@ -15,15 +15,12 @@ public class Possession {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "card_id")
-    private Card card;
+    private Cards card;
 
     @Column(nullable = false)
     private int copies;
 
     public Possession() {
-        this.user = user;
-        this.card = card;
-        this.copies = copies;
     }
 
     public Long getId(){
@@ -42,11 +39,11 @@ public class Possession {
         this.user = user;
     }
 
-    public Card getCard(){
+    public Cards getCard(){
         return card;
     }
 
-    public void setCard(Card card){
+    public void setCard(Cards card){
         this.card = card;
     }
 
@@ -58,9 +55,9 @@ public class Possession {
         this.copies = copies;
     }
 
-    public Possession(User user, Card card, int copies) {
+    public Possession(User user, Cards card, int copies) {
         this.user = user;
-        this.card = card;
+        this.card =  card;
         this.copies = copies;
     }
 

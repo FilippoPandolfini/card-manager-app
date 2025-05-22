@@ -7,14 +7,22 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 public class CardDTO {
 
+    @NotBlank(message = "Il nome è obbligatorio")
+    private String name;
+
     @NotBlank(message = "Il codice è obbligatorio")
     private String code;
 
     @NotNull(message = "Il colore è obbligatorio")
     private CardColor color;
 
-    @PositiveOrZero(message = "Il numero di copie non può essere negativo")
-    private int copies;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getCode() {
         return code;
@@ -30,13 +38,5 @@ public class CardDTO {
 
     public void setColor(CardColor color) {
         this.color = color;
-    }
-
-    public int getCopies() {
-        return copies;
-    }
-
-    public void setCopies(int copies) {
-        this.copies = copies;
     }
 }

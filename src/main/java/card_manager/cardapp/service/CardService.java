@@ -1,6 +1,6 @@
 package card_manager.cardapp.service;
 
-import card_manager.cardapp.model.Card;
+import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.model.Possession;
 import card_manager.cardapp.model.User;
 import card_manager.cardapp.repository.CardRepository;
@@ -25,24 +25,24 @@ public class CardService {
     @Autowired
     private PossessionRepository possessionRepository;
 
-    public Card createCard(Card card){
+    public Cards createCard(Cards card){
         if (cardRepository.existsByCode(card.getCode())) {
             throw new IllegalArgumentException("Una carta con codice '" + card.getCode() + "' esiste già.");
         }
         return cardRepository.save(card);
     }
 
-    public List<Card> getAllCards(){
+    public List<Cards> getAllCards(){
         return cardRepository.findAll();
     }
 
-    public Optional<Card> getCardByCode(String code){
+    public Optional<Cards> getCardByCode(String code){
         return cardRepository.findByCode(code);
     }
 
     @Transactional
     public void assignCardToUser(String cardCode, List<String> userEmails) {
-        Card card = cardRepository.findByCode(cardCode)
+        Cards card = cardRepository.findByCode(cardCode)
                 .orElseThrow(() -> new RuntimeException("Carta non trovata."));
         for (String email : userEmails){
             User user = userRepository.findByEmail(email)

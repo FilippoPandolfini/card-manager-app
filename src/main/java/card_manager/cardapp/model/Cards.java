@@ -3,7 +3,8 @@ package card_manager.cardapp.model;
 import jakarta.persistence.*;
 
 @Entity
-public class Card {
+@Table(name="cards")
+public class Cards {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

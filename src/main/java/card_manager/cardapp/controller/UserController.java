@@ -1,10 +1,12 @@
 package card_manager.cardapp.controller;
 
+import card_manager.cardapp.dto.UserDTO;
 import card_manager.cardapp.model.Possession;
 import card_manager.cardapp.model.User;
 import card_manager.cardapp.repository.PossessionRepository;
 import card_manager.cardapp.service.PossessionService;
 import card_manager.cardapp.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,7 @@ public class UserController {
     @Autowired
     private PossessionRepository possessionRepository;
 
-    @PostMapping
+    @GetMapping
     public List<User> getAllUsers(){
         return userService.getAllUsers();
     }
@@ -31,6 +33,22 @@ public class UserController {
         return userService.getByEmail(email)
                 .map(user -> ResponseEntity.ok(possessionRepository.findByUser(user)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
+        try {
+            User user = new User();
+            user.setName(userDTO.getName());
+            user.setSurname(userDTO.getSurname());
+            user.setEmail(userDTO.getEmail());
+
+            User createdUser = userService.createUser(user);
+
+            return ResponseEntity.status(201).body(createdUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{email}")

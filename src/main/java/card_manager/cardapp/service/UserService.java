@@ -23,8 +23,6 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())){
             throw new RuntimeException("Email già registrata");
         }
-
-        user.setUid(UUID.randomUUID().toString());
         return userRepository.save(user);
     }
 
