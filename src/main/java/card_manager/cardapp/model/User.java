@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -14,7 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String uid;
 
     @Column(nullable = false)
@@ -27,10 +28,15 @@ public class User {
     private String email;
 
     @PrePersist
-    public void prePersist(){
-        if (this.uid == null || this.uid.isEmpty()) {
-            this.uid = UUID.randomUUID().toString();
+    public void ensureUid(){
+        if (this.uid == null || this.uid.isEmpty()){
+            this.uid = generateRandomUid();
         }
+    }
+
+    private String generateRandomUid(){
+        int randomNum = 10000 + (int)(Math.random()*90000);
+        return String.valueOf(randomNum);
     }
 
     public Long getId(){
