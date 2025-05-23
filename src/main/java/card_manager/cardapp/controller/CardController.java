@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cards") // modificare /carte dopo aver mofificato da application properties il rootpath
+@RequestMapping("/carte") // modificare /carte dopo aver mofificato da application properties il rootpath
 public class CardController {
 
     @Autowired
