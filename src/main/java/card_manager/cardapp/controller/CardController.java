@@ -32,7 +32,7 @@ public class CardController {
     }
 
     @GetMapping
-    public List<Cards> getAllCards() {
+    public List<Cards> getAllCards() { //mandare parametri per fare una EVENTUALE search(filtrare) per colore e paginazione
         return cardService.getAllCards();
     }
 
