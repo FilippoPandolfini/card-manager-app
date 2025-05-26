@@ -23,7 +23,7 @@ public class PossessionService {
     private CardRepository cardRepository;
 
     @Transactional
-    public void buyCard(String email, String code){
+    public void buyCard(String email, String code, int copies){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
         Cards card = cardRepository.findByCode(code)
@@ -32,26 +32,29 @@ public class PossessionService {
         Possession possession = possessionRepository.findByUserAndCard(user, card)
                 .orElse(new Possession(user, card, 0));
 
-        possession.setCopies(possession.getCopies()+1);
+        possession.setCopies(possession.getCopies()+copies);
         possessionRepository.save(possession);
     }
 
     @Transactional
-    public void sellCard(String email, String code) {
+    public void sellCard(String email, String code, int copies) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
         Cards card = cardRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Carta non trovata"));
 
         Possession possession = possessionRepository.findByUserAndCard(user, card)
-                .orElseThrow(() -> new RuntimeException("L'utente " + user + " non possiede questa carta"));
+                .orElseThrow(() -> new RuntimeException("L'utente " + email + " non possiede questa carta"));
 
         if (possession.getCopies() <= 0) {
             throw new RuntimeException("Nessuna copia disponibile");
-        } else if (possession.getCopies() > 1) {
-            possession.setCopies(possession.getCopies() - 1);
+        } else if (possession.getCopies() < copies) {
+            throw new RuntimeException("Copie disponibili in minor quantità");
+        }
+        else if (possession.getCopies() > copies) {
+            possession.setCopies(possession.getCopies() - copies);
             possessionRepository.save(possession);
-        } else if (possession.getCopies() == 1) {
+        } else if (possession.getCopies() == copies) {
             possessionRepository.delete(possession);
         }
     }

@@ -16,18 +16,18 @@ public class PossessionController {
     private PossessionService possessionService;
 
     @PostMapping("/buy")
-    public ResponseEntity<String> buyCard(@RequestParam String email, @RequestParam String code){
+    public ResponseEntity<String> buyCard(@RequestParam String email, @RequestParam String code, int copies){
         try {
-            possessionService.buyCard(email, code);
+            possessionService.buyCard(email, code, copies);
             return ResponseEntity.ok("Carta acquistata");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     @PostMapping("/sell")
-    public ResponseEntity<String> sellCard(@RequestParam String email, @RequestParam String code){
+    public ResponseEntity<String> sellCard(@RequestParam String email, @RequestParam String code, int copies){
         try {
-            possessionService.sellCard(email, code);
+            possessionService.sellCard(email, code, copies);
             return ResponseEntity.ok("Carta venduta");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
