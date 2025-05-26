@@ -6,6 +6,7 @@ import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.service.CardService;
 import card_manager.cardapp.service.PossessionService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/carta") // modificare /carte dopo aver mofificato da application properties il rootpath
+@RequestMapping("/carta")
 public class CardController {
 
     @Autowired
@@ -33,7 +34,7 @@ public class CardController {
     }
 
     @GetMapping
-    public List<Cards> getAllCards(@RequestParam(required = false) String color) { //mandare parametri per fare una EVENTUALE search(filtrare) per colore e paginazione
+    public List<Cards> getAllCards(@RequestParam(required = false) String color) {
         if (color != null) {
             return cardService.getCardByColor(color);
         } else {
@@ -71,8 +72,8 @@ public class CardController {
         }
     }
 
-    @PostMapping("/search")
-    public List<Cards> searchCards(@RequestBody CardFilterDTO filter) {
+    @GetMapping("/search")
+    public Page<Cards> searchCards(@RequestBody CardFilterDTO filter) {
         return cardService.searchCards(filter);
     }
 }

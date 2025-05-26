@@ -10,7 +10,11 @@ import card_manager.cardapp.repository.PossessionRepository;
 import card_manager.cardapp.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,13 +47,14 @@ public class CardService {
     }
 
     public List<Cards> getCardByColor(String color){
-        CardColor enumColor;
+        CardColor enumColor = CardColor.valueOf(color.toUpperCase());
+        Pageable pageable = Pageable.unpaged();
         try {
             enumColor = CardColor.valueOf(color.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Colore non valido: " + color + "\nInserisci un colore valido.");
         }
-        return cardRepository.findByColor(enumColor);
+        return cardRepository.findByColor(enumColor, pageable).getContent();
     }
 
     @Transactional
@@ -75,16 +80,20 @@ public class CardService {
         }
     }
 
-    public List<Cards> searchCards(CardFilterDTO filter) {
-        String colorInput = filter.getColor();
-        if (colorInput != null && !colorInput.isEmpty()) {
+    public Page<Cards> searchCards(CardFilterDTO filter) {
+        int page = (filter.getPage() != null) ? filter.getPage():0;
+        int size = (filter.getSize() != null) ? filter.getSize():10;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (filter.getColor() != null && !filter.getColor().isBlank()) {
             try {
-                CardColor enumColor = CardColor.valueOf(colorInput.toUpperCase());
-                return cardRepository.findByColor(enumColor);
+                CardColor enumColor = CardColor.valueOf(filter.getColor().toUpperCase());
+                return cardRepository.findByColor(enumColor, pageable);
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Colore non valido: " + colorInput + "\nInserisci un colore valido.");
+                throw new RuntimeException("Colore non valido: " + filter.getColor() + "\nInserisci un colore valido.");
             }
         }
-        return cardRepository.findAll();
+        return cardRepository.findAll(pageable);
     }
 }
