@@ -31,22 +31,22 @@ public class CardService {
     @Autowired
     private PossessionRepository possessionRepository;
 
-    public Cards createCard(Cards card){
+    public Cards createCard(Cards card) {
         if (cardRepository.existsByCode(card.getCode())) {
             throw new IllegalArgumentException("Una carta con codice '" + card.getCode() + "' esiste già.");
         }
         return cardRepository.save(card);
     }
 
-    public List<Cards> getAllCards(){
+    public List<Cards> getAllCards() {
         return cardRepository.findAll();
     }
 
-    public Optional<Cards> getCardByCode(String code){
+    public Optional<Cards> getCardByCode(String code) {
         return cardRepository.findByCode(code);
     }
 
-    public List<Cards> getCardByColor(String color){
+    public List<Cards> getCardByColor(String color) {
         CardColor enumColor = CardColor.valueOf(color.toUpperCase());
         Pageable pageable = Pageable.unpaged();
         try {
@@ -61,12 +61,12 @@ public class CardService {
     public void assignCardToUser(String cardCode, List<String> userEmails) {
         Cards card = cardRepository.findByCode(cardCode)
                 .orElseThrow(() -> new RuntimeException("Carta non trovata."));
-        for (String email : userEmails){
+        for (String email : userEmails) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException(email + " mail non trovata"));
-            Optional< Possession> existing = possessionRepository.findByUserAndCard(user, card);
+            Optional<Possession> existing = possessionRepository.findByUserAndCard(user, card);
 
-            if (existing.isPresent()){
+            if (existing.isPresent()) {
                 Possession possession = existing.get();
                 possession.setCopies(possession.getCopies() + 1);
                 possessionRepository.save(possession);
@@ -80,20 +80,14 @@ public class CardService {
         }
     }
 
-    public Page<Cards> searchCards(CardFilterDTO filter) {
-        int page = (filter.getPage() != null) ? filter.getPage():0;
-        int size = (filter.getSize() != null) ? filter.getSize():10;
-
+    public Page<Cards> searchCards(String color, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        if (filter.getColor() != null && !filter.getColor().isBlank()) {
-            try {
-                CardColor enumColor = CardColor.valueOf(filter.getColor().toUpperCase());
-                return cardRepository.findByColor(enumColor, pageable);
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Colore non valido: " + filter.getColor() + "\nInserisci un colore valido.");
-            }
+        if (color != null && !color.isEmpty()) {
+            CardColor enumColor = CardColor.valueOf(color.toUpperCase());
+            return cardRepository.findByColor(enumColor, pageable);
+        } else {
+            return cardRepository.findAll(pageable);
         }
-        return cardRepository.findAll(pageable);
     }
 }
