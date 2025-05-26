@@ -1,6 +1,7 @@
 package card_manager.cardapp.controller;
 
 import card_manager.cardapp.dto.CardDTO;
+import card_manager.cardapp.dto.CardFilterDTO;
 import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.service.CardService;
 import card_manager.cardapp.service.PossessionService;
@@ -32,8 +33,12 @@ public class CardController {
     }
 
     @GetMapping
-    public List<Cards> getAllCards() { //mandare parametri per fare una EVENTUALE search(filtrare) per colore e paginazione
-        return cardService.getAllCards();
+    public List<Cards> getAllCards(@RequestParam(required = false) String color) { //mandare parametri per fare una EVENTUALE search(filtrare) per colore e paginazione
+        if (color != null) {
+            return cardService.getCardByColor(color);
+        } else {
+            return cardService.getAllCards();
+        }
     }
 
     @GetMapping("/{code}")
@@ -64,5 +69,10 @@ public class CardController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/search")
+    public List<Cards> searchCards(@RequestBody CardFilterDTO filter) {
+        return cardService.searchCards(filter);
     }
 }

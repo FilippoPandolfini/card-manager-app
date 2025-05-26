@@ -1,5 +1,7 @@
 package card_manager.cardapp.service;
 
+import card_manager.cardapp.dto.CardFilterDTO;
+import card_manager.cardapp.model.CardColor;
 import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.model.Possession;
 import card_manager.cardapp.model.User;
@@ -40,6 +42,16 @@ public class CardService {
         return cardRepository.findByCode(code);
     }
 
+    public List<Cards> getCardByColor(String color){
+        CardColor enumColor;
+        try {
+            enumColor = CardColor.valueOf(color.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Colore non valido: " + color + "\nInserisci un colore valido.");
+        }
+        return cardRepository.findByColor(enumColor);
+    }
+
     @Transactional
     public void assignCardToUser(String cardCode, List<String> userEmails) {
         Cards card = cardRepository.findByCode(cardCode)
@@ -61,5 +73,18 @@ public class CardService {
                 possessionRepository.save(possession);
             }
         }
+    }
+
+    public List<Cards> searchCards(CardFilterDTO filter) {
+        String colorInput = filter.getColor();
+        if (colorInput != null && !colorInput.isEmpty()) {
+            try {
+                CardColor enumColor = CardColor.valueOf(colorInput.toUpperCase());
+                return cardRepository.findByColor(enumColor);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Colore non valido: " + colorInput + "\nInserisci un colore valido.");
+            }
+        }
+        return cardRepository.findAll();
     }
 }
