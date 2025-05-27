@@ -73,11 +73,12 @@ public class CardController {
     }
 
     @GetMapping("/search")
-    public Page<Cards> searchCards(
-            @RequestBody(required = false) CardFilterDTO filter,
-            @RequestParam (defaultValue = "0") int page,
-            @RequestParam (defaultValue = "10") int size) {
-        String color = (filter != null) ? filter.getColor():null;
-        return cardService.searchCards(color, page, size);
+    public Page<Cards> searchCards(@RequestBody(required = false) CardFilterDTO filter) {
+        if (filter == null) {
+            filter = new CardFilterDTO();
+        }
+        int page = (filter.getPage() != null)? filter.getPage():0;
+        int size = (filter.getSize() != null)? filter.getSize():10;
+        return cardService.searchCards(filter.getColor(), page, size);
     }
 }
