@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Main CSS File -->
+    <meta charset="UTF-8">
+    <title>CardApp</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <header id="header" class="header">
+        <h1>CardApp</h1>
+        <a href="utente.html" class="nav-button">Sezione utente</a>
+    </header>
+
+    <!-- Main -->
+    <div class=container>
+        <!-- Form per cercare carte -->
+        <section class="form-section">
+            <h2>Ricerca carta</h2>
+            <form id="formRicerca">
+                <input type="text" id="nomeRicerca" placeholder="Nome carta">
+                <input type="text" id="codiceRicerca" placeholder="Codice carta">
+                <select id="coloreRicerca">
+                    <option value="">ALL COLOURS</option>
+                </select>
+                <button type="submit">Cerca</button>
+            </form>
+
+            <!-- Risultati ricerca -->
+            <ul id="listaCarte"></ul>
+
+            <div id="paginazione">
+        <button id="prevPage">Precedente</button>
+        <span id="pageIndicator">Pagina 1</span>
+        <button id="nextPage">Successiva</button>
+    </div>
+        </section>
+
+        <!-- Form per aggiungere elemento -->
+        <section class="form-section">
+            <h2>Inserisci nuova carta</h2>
+            <form id="formAggiungiCarta">
+                <input type="text" id="nome" placeholder="Nome carta" required>
+                <input type="text" id="codice" placeholder="Codice carta" required>
+                <select id="colore" required>
+                    <option value="">ALL COLOURS</option>
+                </select>
+                <button type="submit">Aggiungi</button>
+            </form>
+            <ul id="risultati"></ul>
+        </section>
+    </div>
+
+    <!-- Script aggiunta -->
+    <script>
+        document.getElementById('formAggiungiCarta').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById("nome").value,
+                code: document.getElementById("codice").value,
+                color: document.getElementById("colore").value
+            };
+
+            fetch("http://localhost:8080/carta", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+
+                .then(res => res.ok ? res.json() : Promise.reject("Errore di inserimento"))
+                .then(json => {
+                    alert("Carta aggiunta: " + JSON.stringify(json));
+                    const ul = document.getElementById("risultati");
+                    const li = document.createElement("li");
+                    li.textContent = `${json.name} - ${json.code} - ${json.color}`;
+                    ul.appendChild(li);
+                })
+                .catch(err => alert("Errore durante l'inserimento: " + err));
+        });
+    </script>
+
+    <!-- Script per la select colori -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch("http://localhost:8080/carta/colors")
+                .then(res => res.json())
+                .then(colors => {
+                    // Popola select per ricerca
+                    const selectRicerca = document.getElementById('coloreRicerca');
+                    // Popola select per aggiunta
+                    const selectAggiungi = document.getElementById('colore');
+
+                    const ordineCustom = ["RED", "GREEN", "BLUE", "PURPLE", "BLACK", "YELLOW"];
+
+                    colors.sort((a, b) => ordineCustom.indexOf(a) - ordineCustom.indexOf(b));
+
+                    colors.forEach(color => {
+                        const optionRicerca = document.createElement('option');
+                        optionRicerca.value = color;
+                        optionRicerca.textContent = color;
+                        selectRicerca.appendChild(optionRicerca);
+
+                        const optionAggiungi = document.createElement('option');
+                        optionAggiungi.value = color;
+                        optionAggiungi.textContent = color;
+                        selectAggiungi.appendChild(optionAggiungi);
+                    });
+                })
+                .catch(err => console.error("Errore caricamento colori: ", err));
+        });
+    </script>
+
+    <!-- Script ricerca -->
+
+    <script>let currentPage = 0;
+        const pageSize = 20;
+
+        function fetchCards(page = 0) {
+            const nome = document.getElementById('nomeRicerca').value;
+            const codice = document.getElementById("codiceRicerca").value;
+            const colore = document.getElementById("coloreRicerca").value;
+
+            const params = new URLSearchParams();
+            if (nome) params.append("name", nome);
+            if (codice) params.append("code", codice);
+            if (colore) params.append("color", colore);
+            params.append("page", page);
+            params.append("size", pageSize);
+
+            fetch("http://localhost:8080/carta?" + params.toString())
+                .then(res => res.ok ? res.json() : Promise.reject("Errore nella fetch"))
+                .then(data => {
+                    const lista = document.getElementById("listaCarte");
+                    lista.innerHTML = "";
+                    data.content.forEach(carta => {
+                        const li = document.createElement("li");
+                        li.textContent = `${carta.code} - ${carta.name} - ${carta.color}`;
+                        lista.appendChild(li);
+                    });
+                    currentPage = data.number;
+                    document.getElementById("pageIndicator").textContent = `Pagina ${data.number + 1} di ${data.totalPages}`;
+
+                    // Disabilita bottoni se in prima o ultima pagina
+                    document.getElementById("prevPage").disabled = data.first;
+                    document.getElementById("nextPage").disabled = data.last;
+                })
+                .catch(err => alert("Errore durante la ricerca: " + err));
+        }
+
+        // Al submit del form di ricerca, resetta pagina a 0 e fai fetch
+        document.getElementById('formRicerca').addEventListener('submit', function (e) {
+            e.preventDefault();
+            fetchCards(0);
+        });
+
+        // Gestione bottoni paginazione
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 0) {
+                fetchCards(currentPage - 1);
+            }
+        });
+        document.getElementById('nextPage').addEventListener('click', () => {
+            fetchCards(currentPage + 1);
+        });
+
+        // Carica la prima pagina appena la pagina si carica (optional)
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchCards(0);
+        });
+    </script>
+</body>
+
+<footer>
+    <h6>Gestione utenti e carte - CardApp</h6>
+</footer>
+
+</html>

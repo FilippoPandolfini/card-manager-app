@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Main CSS File -->
+    <meta charset="UTF-8">
+    <title>Cardapp</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <header id="header" class="header">
+        <h1>Cardapp sample</h1>
+        <a href="cardapp.html" class="nav-button">Home</a>
+    </header>
+
+    <!-- Form per cercare carte -->
+    <section class="form-section">
+        <h2>Ricerca carta</h2>
+        <form id="formRicerca">
+            <input type="text" id="nomeRicerca" placeholder="Nome">
+            <input type="text" id="codiceRicerca" placeholder="Codice">
+            <select id="colore">
+                <option value="">Seleziona colore</option>
+            </select>
+            <button type="submit">Ricerca carta</button>
+        </form>
+
+        <!-- Risultati ricerca -->
+        <ul id="listaCarte"></ul>
+    </section>
+
+    <div id="paginazione">
+        <button id="prevPage">Precedente</button>
+        <span id="pageIndicator">Pagina 1</span>
+        <button id="nextPage">Successiva</button>
+    </div>
+
+    <!-- Script per la select colori -->
+    <script src="color-loader.js"></script>
+
+    <!-- Script ricerca -->
+
+    <script>let currentPage = 0;
+        const pageSize = 20;
+
+        function fetchCards(page = 0) {
+            const nome = document.getElementById('nomeRicerca').value;
+            const codice = document.getElementById("codiceRicerca").value;
+            const colore = document.getElementById("colore").value;
+
+            const params = new URLSearchParams();
+            if (nome) params.append("name", nome);
+            if (codice) params.append("code", codice);
+            if (colore) params.append("color", colore);
+            params.append("page", page);
+            params.append("size", pageSize);
+
+            fetch("http://localhost:8080/carta?" + params.toString())
+                .then(res => res.ok ? res.json() : Promise.reject("Errore nella fetch"))
+                .then(data => {
+                    const lista = document.getElementById("listaCarte");
+                    lista.innerHTML = "";
+                    data.content.forEach(carta => {
+                        const li = document.createElement("li");
+                        li.textContent = `${carta.code} - ${carta.name} - ${carta.color}`;
+                        lista.appendChild(li);
+                    });
+                    currentPage = data.number;
+                    document.getElementById("pageIndicator").textContent = `Pagina ${data.number + 1} di ${data.totalPages}`;
+
+                    // Disabilita bottoni se in prima o ultima pagina
+                    document.getElementById("prevPage").disabled = data.first;
+                    document.getElementById("nextPage").disabled = data.last;
+                })
+                .catch(err => alert("Errore durante la ricerca: " + err));
+        }
+
+        // Al submit del form di ricerca, resetta pagina a 0 e fai fetch
+        document.getElementById('formRicerca').addEventListener('submit', function (e) {
+            e.preventDefault();
+            fetchCards(0);
+        });
+
+        // Gestione bottoni paginazione
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 0) {
+                fetchCards(currentPage - 1);
+            }
+        });
+        document.getElementById('nextPage').addEventListener('click', () => {
+            fetchCards(currentPage + 1);
+        });
+
+        // Carica la prima pagina appena la pagina si carica (optional)
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchCards(0);
+        });
+    </script>
+
+    <footer>
+        <h6>Gestione utenti e carte - CardApp</h6>
+    </footer>
+</body>
+</html>

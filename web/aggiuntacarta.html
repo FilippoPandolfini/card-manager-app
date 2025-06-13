@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Main CSS File -->
+    <meta charset="UTF-8">
+    <title>Cardapp</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <header id="header" class="header">
+        <h1>Cardapp sample</h1>
+        <a href="cardapp.html" class="nav-button">Home</a>
+    </header>
+
+    <!-- Form per aggiungere elemento -->
+        <section class="form-section">
+            <h2>Inserisci nuova carta</h2>
+            <form id="formAggiungiCarta">
+                <input type="text" id="nome" placeholder="Nome" required>
+                <input type="text" id="codice" placeholder="Codice" required>
+                <select id="colore" required>
+                    <option value="">Seleziona colore</option>
+                </select>
+                <button type="submit">Aggiungi carta</button>
+            </form>
+            <ul id="risultati"></ul>
+        </section>
+
+        <!-- Script aggiunta -->
+    <script>
+        document.getElementById('formAggiungiCarta').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById("nome").value,
+                code: document.getElementById("codice").value,
+                color: document.getElementById("colore").value
+            };
+
+            fetch("http://localhost:8080/carta", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+
+                .then(res => res.ok ? res.json() : Promise.reject("Errore di inserimento"))
+                .then(json => {
+                    alert("Carta aggiunta: " + JSON.stringify(json));
+                    const ul = document.getElementById("risultati");
+                    const li = document.createElement("li");
+                    li.textContent = `${json.name} - ${json.code} - ${json.color}`;
+                    ul.appendChild(li);
+                })
+                .catch(err => alert("Errore durante l'inserimento: " + err));
+        });
+    </script>
+
+    <!-- Script per la select colori -->
+    <script src="color-loader.js"></script>
+
+    <footer>
+        <h6>Gestione utenti e carte - CardApp</h6>
+    </footer>
+</body>
+</html>

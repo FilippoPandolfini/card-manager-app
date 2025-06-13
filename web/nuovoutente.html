@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cardapp sample - User</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body class="nuovoutente">
+    <header class="header">
+        <a href="cardapp.html" class="nav-button">Torna alla Home</a>
+        <h1>User page</h1>
+        <a href="utente.html" class="nav-button">Sezione utente</a>
+    </header>
+
+    <div class="container">
+
+        <!-- Form per creare utente -->
+        <section class="form-section">
+            <h2>Crea Utente</h2>
+            <form id="formCreaUtente">
+                <input type="text" id="nome" placeholder="Nome" required>
+                <input type="text" id="cognome" placeholder="Cognome" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <button type="submit">Crea</button>
+            </form>
+            <ul id="listaUtentiCreati"></ul>
+        </section>
+    </div>
+    
+    <footer>
+        <h6>Gestione utenti e carte - CardApp</h6>
+    </footer>
+
+    <!-- Script per creare utente -->
+    <script>
+        document.getElementById('formCreaUtente').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById("nome").value,
+                surname: document.getElementById("cognome").value,
+                email: document.getElementById("email").value
+            };
+
+            fetch("http://localhost:8080/utente", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then(res => res.ok ? res.json() : res.text().then(text => Promise.reject(text)))
+                .then(json => {
+                    const ul = document.getElementById("listaUtentiCreati");
+                    const li = document.createElement("li");
+                    li.textContent = `Utente creato: ${user.name} ${user.surname} (${user.email})`;
+                    ul.appendChild(li);
+                })
+                .catch(err => alert("Errore creazione utente: " + err));
+        })
+    </script>
+</body>
+
+</html>

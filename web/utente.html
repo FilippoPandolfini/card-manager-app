@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cardapp sample - User</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <header class="header">
+        <a href="cardapp.html" class="nav-button">Torna alla Home</a>
+        <h1>User page</h1>
+        <a href="nuovoutente.html" class="nav-button">Crea utente</a>
+    </header>
+
+    <div class="container">
+
+        <!-- Form per cercare carte possedute da utente -->
+        <section class="form-section">
+            <h2>Carte possedute da utente</h2>
+            <form id="formRicercaUtente">
+                <input type="email" id="emailRicerca" placeholder="Email utente" required>
+                <button type="submit">Cerca</button>
+            </form>
+            <ul id="listaPossedute"></ul>
+        </section>
+
+        <!-- Acquisto/vendita carte -->
+        <section class="form-section">
+            <h2>Acquista / vendi carta</h2>
+            <form id="formTransazioneCarta">
+                <input type="email" id="emailTransazione" placeholder="Email utente" required>
+                <input type="text" id="codiceCarta" placeholder="Codice carta" required>
+                <input type="number" id="copie" placeholder="Numero copie" required min="1">
+                <select id="azione">
+                    <option value="buy">Acquista</option>
+                    <option value="sell">Vendi</option>
+                </select>
+                <button type="submit">Esegui</button>
+            </form>
+        </section>
+    </div>
+
+    <footer>
+        <h6>Gestione utenti e carte - CardApp</h6>
+    </footer>
+
+    <!-- Script per visualizzare carte possedute -->
+    <script>
+        document.getElementById("formRicercaUtente").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("emailRicerca").value;
+
+            fetch(`http://localhost:8080/utente/${email}`)
+                .then(res => res.ok ? res.json() : Promise.reject("Utente non trovato"))
+                .then(data => {
+                    const lista = document.getElementById("listaPossedute");
+                    lista.innterHTML = "";
+                    if (data.length === 0) {
+                        lista.innerHTML = "<li>Nessuna carta posseduta.</li>";
+                    } else {
+                        data.forEach(p => {
+                            const li = document.createElement("li");
+                            li.textContent = `${p.card.code} - ${p.card.name} - ${p.card.color} [${p.copies} copie]`;
+                            lista.appendChild(li);
+                        });
+                    }
+                })
+                .catch(err => alert("Errore: " + err));
+        })
+    </script>
+
+    <!-- Script acquisto/vendita -->
+    <script>
+        document.getElementById("formTransazioneCarta").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("emailTransazione").value;
+            const code = document.getElementById("codiceCarta").value;
+            const copies = parseInt(document.getElementById("copie").value);
+            const action = document.getElementById("azione").value;
+
+            const url = `http://localhost:8080/possessions/${action}`;
+
+            fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, code, copies })
+            })
+                .then(res => res.ok ? res.text() : res.text().then(text => Promise.reject(text)))
+                .then(msg => alert(msg))
+                .catch(err => alert("Errore nella transazione: " + err));
+        })
+    </script>
+</body>
+
+</html>
