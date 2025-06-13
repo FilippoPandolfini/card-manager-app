@@ -4,10 +4,9 @@ import card_manager.cardapp.dto.UserDTO;
 import card_manager.cardapp.model.Possession;
 import card_manager.cardapp.model.User;
 import card_manager.cardapp.repository.PossessionRepository;
-import card_manager.cardapp.service.PossessionService;
 import card_manager.cardapp.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,13 +14,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/utente")
+@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PossessionRepository possessionRepository;
+    private final UserService userService;
+    private final PossessionRepository possessionRepository;
 
     @GetMapping
     public List<User> getAllUsers(){

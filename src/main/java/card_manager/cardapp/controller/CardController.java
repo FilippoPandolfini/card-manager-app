@@ -2,6 +2,7 @@ package card_manager.cardapp.controller;
 
 import card_manager.cardapp.dto.CardDTO;
 import card_manager.cardapp.dto.CardFilterDTO;
+import card_manager.cardapp.model.CardColor;
 import card_manager.cardapp.model.Cards;
 import card_manager.cardapp.service.CardService;
 import card_manager.cardapp.service.PossessionService;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/carta")
+@CrossOrigin(origins = "*")
 public class CardController {
 
     @Autowired
@@ -34,13 +36,16 @@ public class CardController {
     }
 
     @GetMapping
-    public List<Cards> getAllCards(@RequestParam(required = false) String color) {
-        if (color != null) {
-            return cardService.getCardByColor(color);
-        } else {
-            return cardService.getAllCards();
-        }
+    public Page<Cards> getAllCards(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String color,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size) {
+
+        return cardService.searchCards(name, code, color, page, size);
     }
+
 
     @GetMapping("/{code}")
     public ResponseEntity<Cards> getCardByCode(@PathVariable String code){
@@ -73,12 +78,18 @@ public class CardController {
     }
 
     @GetMapping("/search")
-    public Page<Cards> searchCards(@RequestBody(required = false) CardFilterDTO filter) {
-        if (filter == null) {
-            filter = new CardFilterDTO();
-        }
-        int page = (filter.getPage() != null)? filter.getPage():0;
-        int size = (filter.getSize() != null)? filter.getSize():10;
-        return cardService.searchCards(filter.getColor(), page, size);
+    public Page<Cards> searchCards(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String color,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size){
+
+        return cardService.searchCards(name, code, color, page, size);
+    }
+
+    @GetMapping("/colors")
+    public List<CardColor> getAvaiableColors(){
+        return cardService.getAvaiableColors();
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/possessions")
+@CrossOrigin(origins = "*")
 public class PossessionController {
 
     @Autowired
